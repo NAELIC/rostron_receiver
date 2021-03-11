@@ -22,7 +22,7 @@ public:
                        })
   {
 
-    publisher_ = this->create_publisher<rostron_interfaces::msg::DetectionFrame>("topic", 10);
+    publisher_ = this->create_publisher<rostron_interfaces::msg::DetectionFrame>("vision", 10);
   }
 
   void sendVisionPacket(const SSL_DetectionFrame &frame)

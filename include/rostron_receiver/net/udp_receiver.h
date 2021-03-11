@@ -16,9 +16,7 @@ public:
                 unsigned int port, boost::asio::io_context &io_context, 
                 const std::function<void(std::size_t length, std::array<char, 2048> data)> &func);
     void do_receive();
-
-    // std::queue<grSim_Packet> packets;
-
+    
 private:
     boost::asio::ip::udp::socket socket_;
     boost::asio::ip::udp::endpoint sender_endpoint_;

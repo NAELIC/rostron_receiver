@@ -29,10 +29,6 @@ void UDPReceiver::do_receive()
         [this](system::error_code ec, std::size_t length) {
             if (!ec)
             {
-                // SSL_WrapperPacket ssl;
-                // ssl.ParseFromArray(data_.data(), length);
-                // std::cout << ssl.has_detection() << std::endl;
-                // callback(length, data_);
                 func_(length, data_);
                 do_receive();
             }
