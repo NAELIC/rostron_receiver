@@ -37,7 +37,6 @@ SET(
   src/net/udp_receiver.cpp
 )
 
-
 SET(
   HEADERS_VISION
   include/rostron_receiver/net/udp_receiver.h
@@ -55,10 +54,35 @@ target_include_directories(vision PUBLIC
 
 # TODO : Verify
 ament_target_dependencies(vision rclcpp rostron_interfaces)
-ament_export_dependencies(Boost Protobuf)
 ament_export_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${Protobuf_LIBRARIES} NAELIC::Proto)
 
-install(TARGETS vision
+# Create gc executable
+SET(
+  SRCS_GC
+  src/gc.cpp
+  src/net/udp_receiver.cpp
+)
+
+SET(
+  HEADERS_GC
+  include/rostron_receiver/net/udp_receiver.h
+)
+
+add_executable(gc ${SRCS_GC} ${HEADERS_GC})
+
+target_link_libraries(gc ${Protobuf_LIBRARIES} NAELIC::Proto ${Boost_SYSTEM_LIBRARY})
+
+target_include_directories(gc PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  ${Protobuf_INCLUDE_DIRS}
+)
+
+ament_target_dependencies(gc rclcpp rostron_interfaces)
+
+install(TARGETS 
+  vision 
+  gc
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

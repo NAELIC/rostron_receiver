@@ -7,8 +7,6 @@
 #include <queue>
 #include <string>
 
-#include "ssl_vision_wrapper.pb.h"
-
 typedef void(*ProtoFunction)(std::size_t length, std::array<char, 2048> data);
 
 class UDPReceiver {

@@ -1,6 +1,8 @@
 #include <cstdio>
 #include "rclcpp/rclcpp.hpp"
 #include "rostron_receiver/net/udp_receiver.h"
+#include "ssl_vision_wrapper.pb.h"
+
 boost::asio::io_context io;
 
 class Vision : public rclcpp::Node
