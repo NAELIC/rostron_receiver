@@ -8,12 +8,15 @@ class Vision : public rclcpp::Node
 public:
   Vision() : Node("vision"),
              receiver_("224.5.23.2", "224.5.23.2", 10020, io,
-                       [](std::size_t length, std::array<char, 2048> data) {
-                         SSL_WrapperPacket ssl;
-                         ssl.ParseFromArray(data.data(), length);
-                         std::cout << "Detection : " << ssl.has_detection() << std::endl;
-                       })
+                       Vision::parseSimPacket)
   {
+  }
+
+  static void parseSimPacket(std::size_t length, std::array<char, 2048> data)
+  {
+    SSL_WrapperPacket sim_packet;
+    sim_packet.ParseFromArray(data.data(), length);
+    std::cout << "Detection : " << sim_packet.has_detection() << std::endl;
   }
 
 private:
