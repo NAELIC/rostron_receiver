@@ -4,7 +4,8 @@ using namespace boost;
 using namespace boost::placeholders;
 
 UDPReceiver::UDPReceiver(std::string listen_addr, std::string multicast_addr,
-                         unsigned int port, asio::io_context &io_context, ProtoFunction func)
+                         unsigned int port, asio::io_context &io_context, 
+                         const std::function<void(std::size_t length, std::array<char, 2048> data)> &func)
     : socket_(io_context), func_(func)
 {
     // Create the socket so that multiple may be bound to the same address.
