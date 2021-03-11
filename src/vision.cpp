@@ -7,7 +7,12 @@ class Vision : public rclcpp::Node
 {
 public:
   Vision() : Node("vision"),
-             receiver_("224.5.23.2", "224.5.23.2", 10020, io)
+             receiver_("224.5.23.2", "224.5.23.2", 10020, io,
+                       [](std::size_t length, std::array<char, 2048> data) {
+                         SSL_WrapperPacket ssl;
+                         ssl.ParseFromArray(data.data(), length);
+                         std::cout << "Detection : " << ssl.has_detection() << std::endl;
+                       })
   {
   }
 

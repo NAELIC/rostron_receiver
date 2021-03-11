@@ -4,8 +4,8 @@ using namespace boost;
 using namespace boost::placeholders;
 
 UDPReceiver::UDPReceiver(std::string listen_addr, std::string multicast_addr,
-                         unsigned int port, asio::io_context &io_context)
-    : socket_(io_context)
+                         unsigned int port, asio::io_context &io_context, ProtoFunction func)
+    : socket_(io_context), func_(func)
 {
     // Create the socket so that multiple may be bound to the same address.
     asio::ip::udp::endpoint listen_endpoint(asio::ip::make_address(listen_addr),
@@ -28,10 +28,11 @@ void UDPReceiver::do_receive()
         [this](system::error_code ec, std::size_t length) {
             if (!ec)
             {
-                SSL_WrapperPacket ssl;
-                ssl.ParseFromArray(data_.data(), length);
-                std::cout << ssl.has_detection() << std::endl;
+                // SSL_WrapperPacket ssl;
+                // ssl.ParseFromArray(data_.data(), length);
+                // std::cout << ssl.has_detection() << std::endl;
                 // callback(length, data_);
+                func_(length, data_);
                 do_receive();
             }
         });
