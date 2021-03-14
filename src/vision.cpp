@@ -42,9 +42,9 @@ public:
       ball_msg.set__confidence(ball.confidence());
       ball_msg.pixel.set__x(ball.pixel_x());
       ball_msg.pixel.set__y(ball.pixel_y());
-      ball_msg.position.set__x(ball.x());
-      ball_msg.position.set__y(ball.y());
-      ball_msg.position.set__z(ball.z());
+      ball_msg.position.set__x(ball.x() / 1000);
+      ball_msg.position.set__y(ball.y()/ 1000);
+      ball_msg.position.set__z(ball.z() / 1000);
       message.balls.push_back(ball_msg);
     }
 
@@ -52,11 +52,11 @@ public:
     {
       rostron_interfaces::msg::DetectionRobot r_msg;
       r_msg.set__confidence(r.confidence());
-      r_msg.set__robot_id(r.robot_id());
+      r_msg.set__id(r.robot_id());
       r_msg.pixel.set__x(r.pixel_x());
       r_msg.pixel.set__y(r.pixel_y());
-      r_msg.pose.position.set__x(r.x());
-      r_msg.pose.position.set__y(r.y());
+      r_msg.pose.position.set__x(r.x() / 1000);
+      r_msg.pose.position.set__y(r.y() / 1000);
       r_msg.pose.orientation.set__z(r.orientation());
       message.yellow.push_back(r_msg);
     }
@@ -65,11 +65,11 @@ public:
     {
       rostron_interfaces::msg::DetectionRobot r_msg;
       r_msg.set__confidence(r.confidence());
-      r_msg.set__robot_id(r.robot_id());
+      r_msg.set__id(r.robot_id());
       r_msg.pixel.set__x(r.pixel_x());
       r_msg.pixel.set__y(r.pixel_y());
-      r_msg.pose.position.set__x(r.x());
-      r_msg.pose.position.set__y(r.y());
+      r_msg.pose.position.set__x(r.x() / 1000);
+      r_msg.pose.position.set__y(r.y() / 1000);
       r_msg.pose.orientation.set__z(r.orientation());
       message.blue.push_back(r_msg);
     }
@@ -79,6 +79,7 @@ public:
 
   void parseGeometryPacket(const SSL_GeometryData& data) {
     RCLCPP_INFO(get_logger(), "TODO - Parse Geometry Packet not done for the moment");
+    (void) data;
   }
 
 private:
