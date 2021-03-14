@@ -17,15 +17,20 @@ public:
                          vision_packet.ParseFromArray(data.data(), length);
                          if (vision_packet.has_detection())
                          {
-                           this->sendVisionPacket(vision_packet.detection());
+                           this->parseVisionPacket(vision_packet.detection());
+                         } 
+
+                         if(vision_packet.has_geometry()) 
+                         {
+                           this->parseGeometryPacket(vision_packet.geometry());
                          }
                        })
   {
 
-    publisher_ = this->create_publisher<rostron_interfaces::msg::DetectionFrame>("vision", 10);
+    publisher_vision_ = this->create_publisher<rostron_interfaces::msg::DetectionFrame>("vision", 10);
   }
 
-  void sendVisionPacket(const SSL_DetectionFrame &frame)
+  void parseVisionPacket(const SSL_DetectionFrame &frame)
   {
     auto message = rostron_interfaces::msg::DetectionFrame();
     message.set__camera_id(frame.camera_id());
@@ -69,12 +74,16 @@ public:
       message.blue.push_back(r_msg);
     }
 
-    publisher_->publish(message);
+    publisher_vision_->publish(message);
+  }
+
+  void parseGeometryPacket(const SSL_GeometryData& data) {
+    RCLCPP_INFO(get_logger(), "TODO - Parse Geometry Packet not done for the moment");
   }
 
 private:
   UDPReceiver receiver_;
-  rclcpp::Publisher<rostron_interfaces::msg::DetectionFrame>::SharedPtr publisher_;
+  rclcpp::Publisher<rostron_interfaces::msg::DetectionFrame>::SharedPtr publisher_vision_;
 };
 
 int main(int argc, char **argv)
