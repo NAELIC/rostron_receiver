@@ -4,6 +4,7 @@
 #include "ssl_vision_wrapper.pb.h"
 
 #include "rostron_interfaces/msg/detection_frame.hpp"
+#include "rostron_interfaces/msg/field.hpp"
 
 boost::asio::io_context io;
 
@@ -18,16 +19,16 @@ public:
                          if (vision_packet.has_detection())
                          {
                            this->parseVisionPacket(vision_packet.detection());
-                         } 
+                         }
 
-                         if(vision_packet.has_geometry()) 
+                         if (vision_packet.has_geometry())
                          {
                            this->parseGeometryPacket(vision_packet.geometry());
                          }
                        })
   {
-
     publisher_vision_ = this->create_publisher<rostron_interfaces::msg::DetectionFrame>("vision", 10);
+    publisher_field_ = this->create_publisher<rostron_interfaces::msg::Field>("field", 10);
   }
 
   void parseVisionPacket(const SSL_DetectionFrame &frame)
@@ -43,7 +44,7 @@ public:
       ball_msg.pixel.set__x(ball.pixel_x());
       ball_msg.pixel.set__y(ball.pixel_y());
       ball_msg.position.set__x(ball.x() / 1000);
-      ball_msg.position.set__y(ball.y()/ 1000);
+      ball_msg.position.set__y(ball.y() / 1000);
       ball_msg.position.set__z(ball.z() / 1000);
       message.balls.push_back(ball_msg);
     }
@@ -77,14 +78,25 @@ public:
     publisher_vision_->publish(message);
   }
 
-  void parseGeometryPacket(const SSL_GeometryData& data) {
-    RCLCPP_INFO(get_logger(), "TODO - Parse Geometry Packet not done for the moment");
-    (void) data;
+  void parseGeometryPacket(const SSL_GeometryData &data)
+  {
+    auto message = rostron_interfaces::msg::Field();
+    message.set__width(data.field().field_width());
+    message.set__length(data.field().field_length());
+
+    message.set__goal_width(data.field().goal_width());
+    message.set__goal_depth(data.field().goal_depth());
+    message.set__penalty_width(data.field().penalty_area_width());
+
+    message.set__penalty_depth(data.field().penalty_area_depth());
+
+    publisher_field_->publish(message);
   }
 
 private:
   UDPReceiver receiver_;
   rclcpp::Publisher<rostron_interfaces::msg::DetectionFrame>::SharedPtr publisher_vision_;
+  rclcpp::Publisher<rostron_interfaces::msg::Field>::SharedPtr publisher_field_;
 };
 
 int main(int argc, char **argv)
