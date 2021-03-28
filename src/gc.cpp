@@ -11,7 +11,7 @@ class GameController : public rclcpp::Node
 {
 public:
   GameController() : Node("gamecontroller"),
-                     receiver_("224.5.23.1", "224.5.23.1", 10003, io,
+                     receiver_("0.0.0.0", "224.5.23.1", 10003, io,
                                [this](std::size_t length, std::array<char, 2048> data) {
                                  Referee gc_packet;
                                  gc_packet.ParseFromArray(data.data(), length);
@@ -27,7 +27,6 @@ public:
     message.set__stage(frame.stage());
     message.set__blue_team_on_positive_half(frame.blue_team_on_positive_half());
     message.set__command(frame.command());
-
     publisher_gc_->publish(message);
   }
 
