@@ -13,7 +13,8 @@ class Vision : public rclcpp::Node
 public:
   Vision() : Node("vision"),
              receiver_("224.5.23.2", "224.5.23.2", 10020, io,
-                       [this](std::size_t length, std::array<char, 2048> data) {
+                       [this](std::size_t length, std::array<char, 2048> data)
+                       {
                          SSL_WrapperPacket vision_packet;
                          vision_packet.ParseFromArray(data.data(), length);
                          if (vision_packet.has_detection())
@@ -81,14 +82,13 @@ public:
   void parseGeometryPacket(const SSL_GeometryData &data)
   {
     auto message = rostron_interfaces::msg::Field();
-    message.set__width(data.field().field_width());
-    message.set__length(data.field().field_length());
+    message.set__width(data.field().field_width() / 1000.0);
+    message.set__length(data.field().field_length() / 1000.0);
 
-    message.set__goal_width(data.field().goal_width());
-    message.set__goal_depth(data.field().goal_depth());
-    message.set__penalty_width(data.field().penalty_area_width());
-
-    message.set__penalty_depth(data.field().penalty_area_depth());
+    message.set__goal_width(data.field().goal_width() / 1000.0);
+    message.set__goal_depth(data.field().goal_depth() / 1000.0);
+    message.set__penalty_width(data.field().penalty_area_width() / 1000.0);
+    message.set__penalty_depth(data.field().penalty_area_depth() / 1000.0);
 
     publisher_field_->publish(message);
   }
@@ -102,9 +102,8 @@ private:
 int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::on_shutdown([]() {
-    io.stop();
-  });
+  rclcpp::on_shutdown([]()
+                      { io.stop(); });
   auto node = std::make_shared<Vision>();
   io.run();
   rclcpp::shutdown();
