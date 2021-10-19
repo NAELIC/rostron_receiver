@@ -87,8 +87,16 @@ public:
 
     message.set__goal_width(data.field().goal_width() / 1000.0);
     message.set__goal_depth(data.field().goal_depth() / 1000.0);
-    message.set__penalty_width(data.field().penalty_area_width() / 1000.0);
-    message.set__penalty_depth(data.field().penalty_area_depth() / 1000.0);
+    message.set__boundary_width(data.field().boundary_width() / 1000.0);
+    for (int i = 0; i < data.field().field_lines_size(); i++)
+    {
+      if (data.field().field_lines(i).name().compare("LeftFieldLeftPenaltyStretch"))
+      {
+        message.set__penalty_depth(std::abs(data.field().field_lines(i).p1().x() - data.field().field_lines(i).p2().x()) / 1000.0);
+        message.set__penalty_width(std::abs(2 * data.field().field_lines(i).p1().y()) / 1000.0);
+        break;
+      }
+    }
 
     publisher_field_->publish(message);
   }
