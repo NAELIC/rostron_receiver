@@ -12,7 +12,27 @@ class Vision : public rclcpp::Node
 {
 public:
   Vision() : Node("vision"),
-             receiver_("224.5.23.2", "224.5.23.2", 10020, io,
+             receiver_(create_socket())
+  {
+    publisher_vision_ = this->create_publisher<rostron_interfaces::msg::DetectionFrame>("vision", 10);
+    publisher_field_ = this->create_publisher<rostron_interfaces::msg::Field>("field", 10);
+  }
+
+  UDPReceiver create_socket()
+  {
+    const auto port_params = "port";
+    const auto multicast_params = "multicast_address";
+
+    this->declare_parameter<int>(port_params, 10301);
+    int port = this->get_parameter(port_params).as_int();
+
+    this->declare_parameter<bool>("yellow", true);
+
+    // this->declare_parameter<std::string>(multicast_params, "0.0.0.0");
+    // std::string multicast_address = this->get_parameter(multicast_params).as_string();
+
+    RCLCPP_INFO(get_logger(), "Creating UDP Socket on %d...", port);
+    return UDPReceiver("224.5.23.2", "224.5.23.2", port, io,
                        [this](std::size_t length, std::array<char, 2048> data)
                        {
                          SSL_WrapperPacket vision_packet;
@@ -26,10 +46,7 @@ public:
                          {
                            this->parseGeometryPacket(vision_packet.geometry());
                          }
-                       })
-  {
-    publisher_vision_ = this->create_publisher<rostron_interfaces::msg::DetectionFrame>("vision", 10);
-    publisher_field_ = this->create_publisher<rostron_interfaces::msg::Field>("field", 10);
+                       });
   }
 
   void parseVisionPacket(const SSL_DetectionFrame &frame)
@@ -90,8 +107,12 @@ public:
     message.set__boundary_width(data.field().boundary_width() / 1000.0);
     for (int i = 0; i < data.field().field_lines_size(); i++)
     {
-      if (data.field().field_lines(i).name().compare("LeftFieldLeftPenaltyStretch"))
+      // RCLCPP_INFO(get_logger(), "------ name : %s", data.field().field_lines(i).name().c_str());
+      if (data.field().field_lines(i).name() == "LeftFieldLeftPenaltyStretch")
       {
+        // RCLCPP_INFO(get_logger(), "------ p1 (x) : %.2f %2f", data.field().field_lines(i).p1().x(), data.field().field_lines(i).p1().y());
+        // RCLCPP_INFO(get_logger(), "------ p2 (x) : %.2f %2f", data.field().field_lines(i).p2().x(), data.field().field_lines(i).p2().y());
+
         message.set__penalty_depth(std::abs(data.field().field_lines(i).p1().x() - data.field().field_lines(i).p2().x()) / 1000.0);
         message.set__penalty_width(std::abs(2 * data.field().field_lines(i).p1().y()) / 1000.0);
         break;
@@ -99,6 +120,7 @@ public:
     }
 
     publisher_field_->publish(message);
+    rclcpp::spin_some(this->get_node_base_interface());
   }
 
 private:
